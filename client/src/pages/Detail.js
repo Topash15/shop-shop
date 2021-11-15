@@ -1,32 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useQuery } from "@apollo/client";
 
-import { QUERY_PRODUCTS } from '../utils/queries';
-import spinner from '../assets/spinner.gif';
+import { QUERY_PRODUCTS } from "../utils/queries";
+import spinner from "../assets/spinner.gif";
 
-import { useStoreContext } from '../utils/GlobalState';
-import { UPDATE_PRODUCTS } from '../utils/actions';
+import { useStoreContext } from "../utils/GlobalState";
+import {
+  REMOVE_FROM_CART,
+  UPDATE_CART_QUANTITY,
+  ADD_TO_CART,
+  UPDATE_PRODUCTS,
+} from "../utils/actions";
 
 function Detail() {
-  // const { id } = useParams();
-
-  // const [currentProduct, setCurrentProduct] = useState({});
-
-  // const { loading, data } = useQuery(QUERY_PRODUCTS);
-
-  // const products = data?.products || [];
-
-  // useEffect(() => {
-  //   if (products.length) {
-  //     setCurrentProduct(products.find((product) => product._id === id));
-  //   }
-  // }, [products, id]);
   // creates connection between page and global state
   const [state, dispatch] = useStoreContext();
 
   // pulls product id from link
-  const {id} = useParams();
+  const { id } = useParams();
 
   // state to change current product
   const [currentProduct, setCurrentProduct] = useState({});
@@ -35,21 +27,35 @@ function Detail() {
   const { loading, data } = useQuery(QUERY_PRODUCTS);
 
   // deconstructs products from state
-  const {products} = state;
+  const { products, cart } = state;
+
+  const addToCart = () => {
+    dispatch({
+      type: ADD_TO_CART,
+      product: { ...currentProduct, purchaseQuantity: 1 },
+    });
+  };
 
   useEffect(() => {
     // pulls product info from state
-    if(products.length){
-      setCurrentProduct(products.find(product => product._id === id));
-    } 
+    if (products.length) {
+      setCurrentProduct(products.find((product) => product._id === id));
+    }
     // will pull product from query if no state available
-    else if (data){
+    else if (data) {
       dispatch({
         type: UPDATE_PRODUCTS,
-        products: data.products
-      })
+        products: data.products,
+      });
     }
   }, [products, data, dispatch, id]);
+
+  const removeFromCart = () => {
+    dispatch({
+      type: REMOVE_FROM_CART,
+      _id: currentProduct._id
+    });
+  };
 
   return (
     <>
@@ -62,9 +68,14 @@ function Detail() {
           <p>{currentProduct.description}</p>
 
           <p>
-            <strong>Price:</strong>${currentProduct.price}{' '}
-            <button>Add to Cart</button>
-            <button>Remove from Cart</button>
+            <strong>Price:</strong>${currentProduct.price}{" "}
+            <button onClick={addToCart}>Add to Cart</button>
+            <button
+              disabled={!cart.find((p) => p._id === currentProduct._id)}
+              onClick={removeFromCart}
+            >
+              Remove from Cart
+            </button>
           </p>
 
           <img
