@@ -4,6 +4,13 @@ const { signToken } = require('../utils/auth');
 
 const resolvers = {
   Query: {
+    users: async () => {
+      return await User.find()
+      .populate({
+        path: 'orders.products'
+        // populate: 'category'
+      });;
+    },
     categories: async () => {
       return await Category.find();
     },
@@ -50,6 +57,13 @@ const resolvers = {
       }
 
       throw new AuthenticationError('Not logged in');
+    },
+    orders: async ()=>{
+      return await Order.find()
+      .populate({
+        path: 'orders.products',
+        populate: 'category'
+      });
     }
   },
   Mutation: {
@@ -60,11 +74,12 @@ const resolvers = {
       return { token, user };
     },
     addOrder: async (parent, { products }, context) => {
-      console.log(context);
       if (context.user) {
         const order = new Order({ products });
+        console.log(order)
 
-        await User.findByIdAndUpdate(context.user._id, { $push: { orders: order } });
+        await User.findByIdAndUpdate(context.user._id, 
+          { $push: { orders: order } });
 
         return order;
       }
@@ -83,7 +98,7 @@ const resolvers = {
 
       return await Product.findByIdAndUpdate(_id, { $inc: { quantity: decrement } }, { new: true });
     },
-    login: async (parent, { email, password }) => {
+    login: async (parent, { email, password }, context) => {
       const user = await User.findOne({ email });
 
       if (!user) {

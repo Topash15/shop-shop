@@ -2,6 +2,7 @@ import React from "react";
 
 import { useStoreContext } from '../../utils/GlobalState';
 import { REMOVE_FROM_CART, UPDATE_CART_QUANTITY } from '../../utils/actions';
+import { idbPromise} from '../../utils/helpers'
 
 const CartItem = ({ item }) => {
 
@@ -12,6 +13,9 @@ const CartItem = ({ item }) => {
       type: REMOVE_FROM_CART,
       _id: item._id
     });
+
+    // removes item from IDB cart
+    idbPromise('cart','delete', {...item})
   };
 
   const onChange = (e) => {
@@ -21,12 +25,18 @@ const CartItem = ({ item }) => {
         type: REMOVE_FROM_CART,
         _id: item._id
       });
+
+      // remove from IDB cart
+      idbPromise('cart', 'delete', {...item})
     } else {
       dispatch({
         type: UPDATE_CART_QUANTITY,
         _id: item._id,
         purchaseQuantity: parseInt(value)
       });
+
+      // update item quantity in IDB cart
+      idbPromise('cart', 'put', {...item, purchaseQuantity: parseInt(value)})
     }
   }
 
@@ -41,7 +51,7 @@ const CartItem = ({ item }) => {
         </div>
         <div>
           <span>Qty:</span>
-          <input type="number" placeholder="1" value={item.purchaseQuantity} />
+          <input type="number" placeholder="1" value={item.purchaseQuantity} onChange={onChange}/>
           <span
             role="img"
             aria-label="trash"

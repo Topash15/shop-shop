@@ -12,6 +12,7 @@ import {
   ADD_TO_CART,
   UPDATE_PRODUCTS,
 } from "../utils/actions";
+import { idbPromise} from "../utils/helpers"
 
 function Detail() {
   // creates connection between page and global state
@@ -30,10 +31,31 @@ function Detail() {
   const { products, cart } = state;
 
   const addToCart = () => {
-    dispatch({
-      type: ADD_TO_CART,
-      product: { ...currentProduct, purchaseQuantity: 1 },
-    });
+    // checks if item is already in cart
+    const itemInCart = cart.find((cartItem) => cartItem._id === id)
+
+    // if item is in cart, update quantity
+    // otherwise add item to cart with quantity of 1
+    if (itemInCart) {
+      dispatch({
+        type: UPDATE_CART_QUANTITY,
+        _id: id,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+      });
+      // if we're updating quantity, use existing item data 
+      // and increment purchaseQuantity value by one
+      idbPromise('cart', 'put', {
+        ...itemInCart,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+      });
+    } else {
+      dispatch({
+        type: ADD_TO_CART,
+        product: { ...currentProduct, purchaseQuantity: 1 },
+      });
+      // if product isn't in cart already, add to current cart in indexedDB
+      idbPromise('cart', 'put', {...currentProduct, purchaseQuantity: 1});
+    }
   };
 
   useEffect(() => {
@@ -41,20 +63,38 @@ function Detail() {
     if (products.length) {
       setCurrentProduct(products.find((product) => product._id === id));
     }
-    // will pull product from query if no state available
+    // will pull product from query/server if no state available
     else if (data) {
       dispatch({
         type: UPDATE_PRODUCTS,
         products: data.products,
       });
+
+      // updates indexedDB with product list
+      data.products.forEach((product) => {
+        idbPromise('products', 'put', product);
+      })
     }
-  }, [products, data, dispatch, id]);
+
+    // get cache from idb
+    else if (!loading) {
+      idbPromise('products', 'get').then((indexedProducts)=>{
+        dispatch({
+          type: UPDATE_PRODUCTS,
+          products: indexedProducts
+        })
+      })
+    }
+  }, [products, data, loading, dispatch, id]);
 
   const removeFromCart = () => {
     dispatch({
       type: REMOVE_FROM_CART,
       _id: currentProduct._id
     });
+
+    // remove item from IDB cart once it has been removed from cart
+    idbPromise('cart', 'delete', {...currentProduct});
   };
 
   return (
