@@ -15,7 +15,6 @@ import {
   ADD_TO_CART,
   UPDATE_PRODUCTS,
 } from "../utils/actions";
-import { idbPromise} from "../utils/helpers"
 
 function Detail() {
   // creates connection between page and global state

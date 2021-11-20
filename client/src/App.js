@@ -20,6 +20,9 @@ import Nav from "./components/Nav";
 import OrderHistory from "./pages/OrderHistory";
 import Success from "./pages/Success";
 
+// redux state
+import { useSelector } from "react-redux"
+
 const httpLink = createHttpLink({
   uri: "/graphql",
 });
@@ -40,6 +43,11 @@ const client = new ApolloClient({
 });
 
 function App() {
+
+  const state = useSelector((state) => state)
+
+  console.log(state)
+
   return (
     <ApolloProvider client={client}>
       <Router>
