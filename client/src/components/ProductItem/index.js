@@ -4,6 +4,7 @@ import { pluralize } from "../../utils/helpers";
 
 import { useStoreContext } from "../../utils/GlobalState";
 import { ADD_TO_CART, UPDATE_CART_QUANTITY } from "../../utils/actions";
+import { idbPromise } from "../../utils/helpers"
 
 function ProductItem(item) {
   const { image, name, _id, price, quantity } = item;
@@ -14,21 +15,30 @@ function ProductItem(item) {
   const { cart } = state;
 
   const addToCart = () => {
-    // find cart item with a matching id
-    const itemInCart = cart.find((cartItem) => cartItem._id === _id);
+    // checks if item is already in cart
+    const itemInCart = cart.find((cartItem) => cartItem._id === _id)
 
-    // if there's a match, call UPDATE with a new purchase quantity
+    // if item is in cart, update quantity
+    // otherwise add item to cart with quantity of 1
     if (itemInCart) {
       dispatch({
         type: UPDATE_CART_QUANTITY,
         _id: _id,
-        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+      });
+      // if we're updating quantity, use existing item data 
+      // and increment purchaseQuantity value by one
+      idbPromise('cart', 'put', {
+        ...itemInCart,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
       });
     } else {
       dispatch({
         type: ADD_TO_CART,
         product: { ...item, purchaseQuantity: 1 },
       });
+      // if product isn't in cart already, add to current cart in indexedDB
+      idbPromise('cart', 'put', {...item, purchaseQuantity: 1});
     }
   };
 

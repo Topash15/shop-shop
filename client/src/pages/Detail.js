@@ -15,6 +15,7 @@ import {
   ADD_TO_CART,
   UPDATE_PRODUCTS,
 } from "../utils/actions";
+import { idbPromise} from "../utils/helpers"
 
 function Detail() {
   // creates connection between page and global state
@@ -37,14 +38,29 @@ function Detail() {
     if (products.length) {
       setCurrentProduct(products.find((product) => product._id === id));
     }
-    // will pull product from query if no state available
+    // will pull product from query/server if no state available
     else if (data) {
       dispatch({
         type: UPDATE_PRODUCTS,
         products: data.products,
       });
+
+      // updates indexedDB with product list
+      data.products.forEach((product) => {
+        idbPromise('products', 'put', product);
+      })
     }
-  }, [products, data, dispatch, id]);
+
+    // get cache from idb
+    else if (!loading) {
+      idbPromise('products', 'get').then((indexedProducts)=>{
+        dispatch({
+          type: UPDATE_PRODUCTS,
+          products: indexedProducts
+        })
+      })
+    }
+  }, [products, data, loading, dispatch, id]);
 
   const addToCart = () => {
     const itemInCart = cart.find((cartItem) => cartItem._id === id)
