@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
+import Cart from "../components/Cart";
 
 import { QUERY_PRODUCTS } from "../utils/queries";
 import spinner from "../assets/spinner.gif";
+
+import {idbPromise} from "../utils/helpers"
 
 import { useStoreContext } from "../utils/GlobalState";
 import {
@@ -29,13 +32,6 @@ function Detail() {
   // deconstructs products from state
   const { products, cart } = state;
 
-  const addToCart = () => {
-    dispatch({
-      type: ADD_TO_CART,
-      product: { ...currentProduct, purchaseQuantity: 1 },
-    });
-  };
-
   useEffect(() => {
     // pulls product info from state
     if (products.length) {
@@ -50,11 +46,35 @@ function Detail() {
     }
   }, [products, data, dispatch, id]);
 
+  const addToCart = () => {
+    const itemInCart = cart.find((cartItem) => cartItem._id === id)
+    if (itemInCart) {
+      dispatch({
+        type: UPDATE_CART_QUANTITY,
+        _id: id,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+      });
+      idbPromise('cart', 'put', {
+        ...itemInCart,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+      });
+    } else {
+      dispatch({
+        type: ADD_TO_CART,
+        product: { ...currentProduct, purchaseQuantity: 1 }
+      });
+      idbPromise('cart', 'put', { ...currentProduct, purchaseQuantity: 1 });
+
+    }
+  }
+
   const removeFromCart = () => {
     dispatch({
       type: REMOVE_FROM_CART,
       _id: currentProduct._id
     });
+
+    idbPromise('cart', 'delete', {...currentProduct})
   };
 
   return (
@@ -85,6 +105,7 @@ function Detail() {
         </div>
       ) : null}
       {loading ? <img src={spinner} alt="loading" /> : null}
+      <Cart/>
     </>
   );
 }
