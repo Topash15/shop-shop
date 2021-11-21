@@ -1,10 +1,39 @@
-import React from 'react';
-import { useQuery } from '@apollo/client';
-import { QUERY_CATEGORIES } from '../../utils/queries';
+import React, { useEffect } from "react";
+import { useQuery } from "@apollo/client";
+import { QUERY_CATEGORIES } from "../../utils/queries";
 
-function CategoryMenu({ setCategory }) {
+import { idbPromise } from "../../utils/helpers";
+
+// redux
+import { useSelector, useDispatch } from "react-redux";
+import {
+  updateCategories,
+  setCurrentCategory,
+} from "../../state/action-creators/index";
+
+function CategoryMenu() {
+  const categories = useSelector((state) => state.categories);
+  const dispatch = useDispatch();
+
   const { data: categoryData } = useQuery(QUERY_CATEGORIES);
-  const categories = categoryData?.categories || [];
+
+  useEffect(() => {
+    // if categoryData exists or has changed from the response of useQuery,
+    // then run dispatch();
+    if (categoryData) {
+      // save each product to indexedDB as well
+      categoryData.categories.forEach((category) => {
+        idbPromise("categories", "put", category);
+      });
+      // executy our dispatch function with our action object indicating
+      // the type of action and the data to set for our state for categories to dispatch
+      dispatch(updateCategories(categoryData.categories));
+    }
+  }, [categoryData, dispatch]);
+
+  const handleClick = (id) => {
+    dispatch(setCurrentCategory(id));
+  };
 
   return (
     <div>
@@ -13,7 +42,7 @@ function CategoryMenu({ setCategory }) {
         <button
           key={item._id}
           onClick={() => {
-            setCategory(item._id);
+            handleClick(item._id);
           }}
         >
           {item.name}
