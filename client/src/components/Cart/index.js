@@ -10,15 +10,18 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useLazyQuery } from "@apollo/client";
 
 // redux
-import { useSelector, useDispatch } from 'react-redux';
-import { toggleCartAction, addMultipleToCartAction } from '../../state/action-creators/index'
+import { useSelector, useDispatch } from "react-redux";
+import {
+  toggleCartAction,
+  addMultipleToCartAction,
+} from "../../state/action-creators/index";
 
 // stripe
 const stripePromise = loadStripe("pk_test_TYooMQauvdEDq54NiTphI7jx");
 
 const Cart = () => {
-  //redux
-  const state = useSelector((state) => state)
+  //redux state
+  const state = useSelector((state) => state);
   const dispatch = useDispatch();
 
   // triggers when checkout button is clicked
@@ -33,7 +36,7 @@ const Cart = () => {
     if (!state.cart.length) {
       getCart();
     }
-  }, [state.cart.lenth, dispatch]);
+  }, [state.cart.length, dispatch]);
 
   // stripe use effect
   useEffect(() => {
@@ -57,6 +60,7 @@ const Cart = () => {
   }
 
   function submitCheckout() {
+    console.log('submit')
     const productIds = [];
 
     state.cart.forEach((item) => {
