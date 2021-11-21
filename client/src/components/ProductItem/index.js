@@ -6,10 +6,16 @@ import { useStoreContext } from "../../utils/GlobalState";
 import { ADD_TO_CART, UPDATE_CART_QUANTITY } from "../../utils/actions";
 import { idbPromise } from "../../utils/helpers"
 
+// redux
+import { useSelector, useDispatch } from 'react-redux';
+import {addItemToCartAction, updateCartQuantityAction} from '../../state/action-creators/index'
+
+
 function ProductItem(item) {
   const { image, name, _id, price, quantity } = item;
 
-  const [state, dispatch] = useStoreContext();
+  const state = useSelector((state) => state)
+  const dispatch = useDispatch();
 
   // deconstructs cart from state
   const { cart } = state;
@@ -21,11 +27,9 @@ function ProductItem(item) {
     // if item is in cart, update quantity
     // otherwise add item to cart with quantity of 1
     if (itemInCart) {
-      dispatch({
-        type: UPDATE_CART_QUANTITY,
-        _id: _id,
-        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
-      });
+      const quantity = parseInt(itemInCart.purchaseQuantity)
+      console.log(quantity)
+      dispatch(updateCartQuantityAction(_id, quantity));
       // if we're updating quantity, use existing item data 
       // and increment purchaseQuantity value by one
       idbPromise('cart', 'put', {
@@ -33,10 +37,7 @@ function ProductItem(item) {
         purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
       });
     } else {
-      dispatch({
-        type: ADD_TO_CART,
-        product: { ...item, purchaseQuantity: 1 },
-      });
+      dispatch(addItemToCartAction(item));
       // if product isn't in cart already, add to current cart in indexedDB
       idbPromise('cart', 'put', {...item, purchaseQuantity: 1});
     }

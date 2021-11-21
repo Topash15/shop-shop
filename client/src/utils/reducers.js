@@ -47,13 +47,18 @@ export const reducer = (state, action) => {
 
         // 
         case ADD_MULTIPLE_TO_CART:
-            return {
+            if(!action.products){
+                return {
+                    ...state,
+                    cart: [...state.cart],
+            }} else { return {
               ...state,
               cart: [...state.cart, ...action.products],
-            };
+            }};
 
         // remove items from cart
         case REMOVE_FROM_CART:
+            console.log(action)
             let newState = state.cart.filter(product =>{
                 return product._id !== action._id
             });

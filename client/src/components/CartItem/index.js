@@ -4,15 +4,20 @@ import { useStoreContext } from '../../utils/GlobalState';
 import { REMOVE_FROM_CART, UPDATE_CART_QUANTITY } from '../../utils/actions';
 import { idbPromise} from '../../utils/helpers'
 
+// redux
+import { useSelector, useDispatch} from 'react-redux';
+import { removeFromCartAction, updateCartQuantityAction} from '../../state/action-creators/index'
+
 const CartItem = ({ item }) => {
 
-  const [, dispatch] = useStoreContext();
+  const state = useSelector((state) => state);
+  const dispatch = useDispatch();
 
-  const removeFromCart = item => {
-    dispatch({
-      type: REMOVE_FROM_CART,
-      _id: item._id
-    });
+  // deconstructs _id from item
+  const {_id} = item
+
+  const removeFromCart = item => { 
+    dispatch(removeFromCartAction(_id));
 
     // removes item from IDB cart
     idbPromise('cart','delete', {...item})
@@ -21,19 +26,15 @@ const CartItem = ({ item }) => {
   const onChange = (e) => {
     const value = e.target.value;
     if (value === '0') {
-      dispatch({
-        type: REMOVE_FROM_CART,
-        _id: item._id
-      });
+      dispatch(removeFromCartAction(_id));
 
       // remove from IDB cart
       idbPromise('cart', 'delete', {...item})
     } else {
-      dispatch({
-        type: UPDATE_CART_QUANTITY,
-        _id: item._id,
-        purchaseQuantity: parseInt(value)
-      });
+      // quantity subtracts 1 because update cart will automatically
+      // add 1 to quantity
+      let quantity = parseInt(value) - 1
+      dispatch(updateCartQuantityAction(_id, quantity));
 
       // update item quantity in IDB cart
       idbPromise('cart', 'put', {...item, purchaseQuantity: parseInt(value)})
