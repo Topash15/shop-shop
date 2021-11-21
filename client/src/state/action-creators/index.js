@@ -1,18 +1,30 @@
-export const getCategories = (categoryData) => {
+// retrieves all categories
+export const updateCategories = (categories) => {
     return(dispatch) => {
-        console.log('getCategories')
+        // console.log('updateCategories')
         dispatch({
-            type: "GET_CATEGORIES",
-            payload: categoryData.categories
+            type: "UPDATE_CATEGORIES",
+            categories
         })
     }
 }
 
-// export const setCurrentCategory = (CurrentCategory) => {
-//     return(dispatch) => {
-//         dispatch({
-//             type: "SET_CURRENT_CATEGORY",
-//             payload: CurrentCategory
-//         })
-//     }
-// }
+// sets current category
+export const setCurrentCategory = (id) => {
+    return(dispatch) => {
+        dispatch({
+            type: "UPDATE_CURRENT_CATEGORY",
+            currentCategory: id
+        })
+    }
+}
+
+// // updates products
+export const updateProducts = (products) => {
+    return(dispatch) => {
+        dispatch({
+            type: "UPDATE_PRODUCTS",
+            products
+        })
+    }
+}

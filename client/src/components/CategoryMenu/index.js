@@ -2,13 +2,11 @@ import React, {useEffect} from 'react';
 import { useQuery } from '@apollo/client';
 import { QUERY_CATEGORIES } from '../../utils/queries';
 // import { useStoreContext} from '../../utils/GlobalState'
-import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY} from '../../utils/actions';
+// import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY} from '../../utils/actions';
 
 // redux
 import { useSelector, useDispatch } from 'react-redux';
-import { bindActionCreators } from 'redux';
-// import { actionCreators } from '../../state/index';
-import { getCategories } from '../../state/action-creators/index'
+import { updateCategories, setCurrentCategory } from '../../state/action-creators/index'
 
 function CategoryMenu() {
 
@@ -16,7 +14,7 @@ function CategoryMenu() {
   const categories = useSelector((state)=>state.categories)
   const dispatch = useDispatch();
 
-  // const { getCategories } = bindActionCreators(getCategories, dispatch)
+  // const { updateCategories } = bindActionCreators(actionCreators, dispatch)
 
   // const {categories} = state;
 
@@ -26,18 +24,14 @@ function CategoryMenu() {
     // if categoryData exists or has changed from the response of useQuery,
     // then run dispatch();
     if (categoryData){
-      console.log(categoryData)
       // executy our dispatch function with our action object indicating
       // the type of action and the data to set for our state for categories to dispatch
-      getCategories(categoryData)
+      dispatch(updateCategories(categoryData.categories))
     }
   }, [categoryData, dispatch])
 
   const handleClick = id => {
-    dispatch({
-      type: UPDATE_CURRENT_CATEGORY,
-      currentCategory: id
-    });
+    dispatch(setCurrentCategory(id));
   };
 
   return (

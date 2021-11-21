@@ -1,9 +1,15 @@
-import {createStore, applyMiddleware} from 'redux';
-import reducers from './reducers/index';
-import thunk from 'redux-thunk'
+import { createStore, applyMiddleware } from "redux";
+import reducers from "../utils/reducers";
+import thunk from "redux-thunk";
 
 export const store = createStore(
-    reducers,
-    {},
-    applyMiddleware(thunk)
-)
+  reducers,
+  {
+    products: [],
+    categories: [],
+    currentCategory: "",
+    cartOpen: false,
+    cart: [],
+  },
+  applyMiddleware(thunk)
+);

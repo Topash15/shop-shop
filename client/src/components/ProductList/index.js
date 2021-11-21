@@ -10,8 +10,14 @@ import { UPDATE_PRODUCTS } from '../../utils/actions';
 
 import { idbPromise } from '../../utils/helpers'
 
+// redux
+import { useSelector, useDispatch } from 'react-redux';
+import { updateProducts } from '../../state/action-creators/index'
+
 function ProductList() {
-  const [state, dispatch] = useStoreContext();
+  // const [state, dispatch] = useStoreContext();
+  const state = useSelector((state)=> state)
+  const dispatch = useDispatch();
 
   const { currentCategory } = state;
 
@@ -20,11 +26,9 @@ function ProductList() {
   useEffect(() => {
     // if there's data to be stored
     if (data) {
+      const {products} = data
       // store in global state object
-      dispatch({
-        type: UPDATE_PRODUCTS,
-        products: data.products
-      });
+      dispatch(updateProducts(products));
 
       // save each product to indexedDB as well
       data.products.forEach(product => {
@@ -34,10 +38,7 @@ function ProductList() {
       // since we're offline, get all data from the 'products' store
       idbPromise('products', 'get').then((products) => {
         // use retrieved data to set globabl state for offline browsing
-        dispatch({
-          type: UPDATE_PRODUCTS,
-          products: products
-        })
+        dispatch(updateProducts(products))
       })
     }
   }, [data, loading, dispatch])
