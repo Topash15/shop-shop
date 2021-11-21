@@ -81,3 +81,10 @@ export const removeFromCartAction = (_id) => {
 }
 
 // clear cart
+export const clearCartAction = () => {
+    return (dispatch) => {
+        dispatch({
+            type: "CLEAR_CART",
+        })
+    }
+}

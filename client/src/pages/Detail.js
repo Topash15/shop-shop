@@ -8,14 +8,6 @@ import spinner from "../assets/spinner.gif";
 
 import { idbPromise } from "../utils/helpers";
 
-// import { useStoreContext } from "../utils/GlobalState";
-// import {
-//   REMOVE_FROM_CART,
-//   UPDATE_CART_QUANTITY,
-//   ADD_TO_CART,
-//   UPDATE_PRODUCTS,
-// } from "../utils/actions";
-
 // redux
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -26,8 +18,6 @@ import {
 } from "../state/action-creators/index";
 
 function Detail() {
-  // creates connection between page and global state
-  // const [state, dispatch] = useStoreContext();
 
   // redux state
   const state = useSelector((state) => state);

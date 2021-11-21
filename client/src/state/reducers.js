@@ -10,8 +10,6 @@ import {
     TOGGLE_CART
 } from './actions';
 
-import { useReducer } from 'react' 
-
 export const reducer = (state, action) => {
     switch (action.type) {
         // if action type is value of 'UPDATE_PRODUCTS',
@@ -102,10 +100,6 @@ export const reducer = (state, action) => {
         default: 
             return state;
     }
-}
-
-export function useProductReducer(initialState) {
-    return useReducer(reducer, initialState)
 }
 
 export default reducer;

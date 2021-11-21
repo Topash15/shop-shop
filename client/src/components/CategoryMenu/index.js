@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@apollo/client";
 import { QUERY_CATEGORIES } from "../../utils/queries";
-// import { useStoreContext} from '../../utils/GlobalState'
-// import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY} from '../../utils/actions';
 
 import { idbPromise } from "../../utils/helpers";
 
@@ -14,13 +12,8 @@ import {
 } from "../../state/action-creators/index";
 
 function CategoryMenu() {
-  // const [state, dispatch] = useStoreContext();
   const categories = useSelector((state) => state.categories);
   const dispatch = useDispatch();
-
-  // const { updateCategories } = bindActionCreators(actionCreators, dispatch)
-
-  // const {categories} = state;
 
   const { data: categoryData } = useQuery(QUERY_CATEGORIES);
 
